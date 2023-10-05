@@ -27,4 +27,45 @@ const create = async (req, res) => {
   }
 };
 
-module.exports = { getAll, getOne, create };
+const updateOne = async (req, res) => {
+  const menuItemId = req.params.id;
+  const updateFields = req.body;
+  const updatedAt = new Date();
+  try {
+    const updatedMenuItem = await MenuItems.updateOne(
+      { _id: menuItemId }, // Query object
+      { ...updateFields, updatedAt } // Update object
+    );
+    if (!updatedMenuItem) {
+      return res.status(404).send("Menu item not found");
+    }
+    return res.send(updatedMenuItem);
+  } catch (error) {
+    return res.status(500).send(error);
+  }
+};
+
+const deleteOne = async (req, res) => {
+  const menuItemId = req.params.id;
+  try {
+    const deletedMenuItem = await MenuItems.deleteOne(menuItemId);
+    if (!deletedMenuItem) {
+      res.status(404).send("Menu item not found");
+    }
+    res.send(menuItemId);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+const search = async (req, res) => {
+  const query = req.query.q.toString();
+  try {
+    const searchResults = await MenuItems.search(query);
+    res.json(searchResults);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+module.exports = { getAll, getOne, create, updateOne, deleteOne, search };

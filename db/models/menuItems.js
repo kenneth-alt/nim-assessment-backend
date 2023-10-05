@@ -16,8 +16,19 @@ const menuItemsSchema = new mongoose.Schema({
   },
   imageUrl: {
     type: String
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
   }
 });
+
+menuItemsSchema.index({ name: "text", description: "text" });
+
 menuItemsSchema.set("toJSON", {
   virtuals: true
 });
@@ -51,4 +62,43 @@ const create = async (body) => {
   }
 };
 
-module.exports = { getAll, getOne, create, MenuItems };
+const updateOne = async (id, updateFields, updatedAt) => {
+  try {
+    const updatedMenuItem = await MenuItems.findByIdAndUpdate(
+      id,
+      { ...updateFields, updatedAt },
+      { new: true }
+    );
+    return updatedMenuItem;
+  } catch (error) {
+    return error;
+  }
+};
+
+const deleteOne = async (id) => {
+  try {
+    const deletedMenuItem = await MenuItems.findByIdAndDelete(id);
+    return deletedMenuItem;
+  } catch (error) {
+    return error;
+  }
+};
+
+const search = async (query) => {
+  try {
+    const searchResults = await MenuItems.find({ $text: { $search: query } });
+    return searchResults;
+  } catch (error) {
+    return error;
+  }
+};
+
+module.exports = {
+  getAll,
+  getOne,
+  create,
+  updateOne,
+  deleteOne,
+  search,
+  MenuItems
+};
